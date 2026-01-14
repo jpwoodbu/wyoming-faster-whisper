@@ -7,8 +7,6 @@ import tempfile
 import wave
 from typing import Optional
 
-import whisper
-
 from wyoming.asr import Transcribe, Transcript
 from wyoming.audio import AudioChunk, AudioStop
 from wyoming.event import Event
@@ -18,13 +16,13 @@ from wyoming.server import AsyncEventHandler
 _LOGGER = logging.getLogger(__name__)
 
 
-class WhisperEventHandler(AsyncEventHandler):
+class ParakeetEventHandler(AsyncEventHandler):
     """Event handler for clients."""
 
     def __init__(
         self,
         wyoming_info: Info,
-        model: whisper.Whisper,
+        model,
         model_lock: asyncio.Lock,
         language: Optional[str] = None,
         *args,
@@ -61,11 +59,8 @@ class WhisperEventHandler(AsyncEventHandler):
             self._wav_file = None
 
             async with self.model_lock:
-                result = self.model.transcribe(
-                    self._wav_path,
-                    language=self.language,
-                )
-            text = result["text"]
+                result = self.model.transcribe(self._wav_path)
+            text = result[0].text
             assert isinstance(text, str)
             _LOGGER.info(text)
 
@@ -81,7 +76,9 @@ class WhisperEventHandler(AsyncEventHandler):
             transcribe = Transcribe.from_event(event)
             if transcribe.language:
                 self._language = transcribe.language
-                _LOGGER.debug("Language set to %s", transcribe.language)
+                _LOGGER.debug(
+                    "Language set to %s but is ignored by this handler",
+                    transcribe.language)
             return True
 
         if Describe.is_type(event.type):

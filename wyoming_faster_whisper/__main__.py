@@ -223,6 +223,14 @@ async def main() -> None:
             download_root=args.download_dir,
             in_memory=True,
         )
+    elif stt_library == SttLibrary.NEMO_PARAKEET:
+        # Use NeMo Parakeet
+        import nemo.collections.asr as nemo_asr 
+
+        whisper_model = nemo_asr.models.ASRModel.from_pretrained(
+            model_name="nvidia/parakeet-tdt-0.6b-v3")
+        if args.device.lower() == 'xpu':
+            whisper_model = whisper_model.to('xpu')
     else:
         # Use faster-whisper
         whisper_model = faster_whisper.WhisperModel(
@@ -308,6 +316,19 @@ async def main() -> None:
         await server.run(
             partial(
                 WhisperEventHandler,
+                wyoming_info,
+                whisper_model,
+                model_lock,
+                args.language,
+            )
+        )
+    elif stt_library == SttLibrary.NEMO_PARAKEET:
+        # Use NeMo Parakeet
+        from .parakeet_handler import ParakeetEventHandler
+
+        await server.run(
+            partial(
+                ParakeetEventHandler,
                 wyoming_info,
                 whisper_model,
                 model_lock,

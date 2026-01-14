@@ -12,6 +12,7 @@ class SttLibrary(str, Enum):
     SHERPA = "sherpa"
     ONNX_ASR = "onnx-asr"
     WHISPER = "whisper"
+    NEMO_PARAKEET = "nemo_parakeet"
 
 
 AUTO_LANGUAGE = "auto"
