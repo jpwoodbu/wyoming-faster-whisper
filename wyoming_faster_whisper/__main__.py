@@ -226,6 +226,10 @@ async def main() -> None:
     elif stt_library == SttLibrary.NEMO_PARAKEET:
         # Use NeMo Parakeet
         import nemo.collections.asr as nemo_asr 
+        # The logs are too chatty.
+        from nemo.utils.nemo_logging import Logger
+        nemo_logger = Logger()
+        nemo_logger.remove_stream_handlers()
 
         whisper_model = nemo_asr.models.ASRModel.from_pretrained(
             model_name="nvidia/parakeet-tdt-0.6b-v3")

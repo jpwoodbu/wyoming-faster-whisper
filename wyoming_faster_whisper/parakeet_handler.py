@@ -59,7 +59,7 @@ class ParakeetEventHandler(AsyncEventHandler):
             self._wav_file = None
 
             async with self.model_lock:
-                result = self.model.transcribe(self._wav_path)
+                result = self.model.transcribe(self._wav_path, verbose=False)
             text = result[0].text
             assert isinstance(text, str)
             _LOGGER.info(text)
